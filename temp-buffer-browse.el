@@ -63,26 +63,29 @@ non-nil then MAP stays active."
 (defvar temp-buffer-browse--window nil)
 
 (defvar temp-buffer-browse-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\C-m"
-      (lambda ()
-        (interactive)
-        (when (window-live-p temp-buffer-browse--window)
-          (quit-window nil temp-buffer-browse--window))))
-    (define-key map " "
-      (lambda ()
-        (interactive)
-        (when (window-live-p temp-buffer-browse--window)
-          (with-selected-window temp-buffer-browse--window
-            (condition-case nil
-                (scroll-up)
-              (end-of-buffer (quit-window)))))))
-    (define-key map (kbd "DEL")
-      (lambda ()
-        (interactive)
-        (when (window-live-p temp-buffer-browse--window)
-          (with-selected-window temp-buffer-browse--window
-            (scroll-up '-)))))
+  (let ((map (make-sparse-keymap))
+        (quit (lambda ()
+                (interactive)
+                (when (window-live-p temp-buffer-browse--window)
+                  (quit-window nil temp-buffer-browse--window))))
+        (up (lambda ()
+              (interactive)
+              (when (window-live-p temp-buffer-browse--window)
+                (with-selected-window temp-buffer-browse--window
+                  (condition-case nil
+                      (scroll-up)
+                    (end-of-buffer (quit-window)))))))
+        (down (lambda ()
+                (interactive)
+                (when (window-live-p temp-buffer-browse--window)
+                  (with-selected-window temp-buffer-browse--window
+                    (scroll-up '-))))))
+    (define-key map "\C-m" quit)
+    (define-key map [return] quit)
+    (define-key map " " up)
+    (define-key map (kbd "DEL") down)
+    (define-key map [delete] down)
+    (define-key map [backspace] down)
     map))
 
 (defun temp-buffer-browse-setup ()
@@ -119,7 +122,7 @@ the temp buffer window, respectively."
          ;; When any error happens the keymap is active forever.
          (with-demoted-errors
            (or (and (window-live-p temp-buffer-browse--window)
-                    (not (equal (this-command-keys) "\C-m"))
+                    (not (member (this-command-keys) '("\C-m" [return])))
                     (eq this-command (lookup-key temp-buffer-browse-map
                                                  (this-command-keys))))
                (overlay-put o 'line-prefix nil))))))))
