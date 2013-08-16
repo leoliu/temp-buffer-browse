@@ -1,6 +1,6 @@
 ;;; temp-buffer-browse.el --- temp buffer browse mode  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013  Leo Liu
+;; Copyright (C) 2013  Free Software Foundation, Inc.
 
 ;; Author: Leo Liu <sdl.web@gmail.com>
 ;; Version: 1.0
