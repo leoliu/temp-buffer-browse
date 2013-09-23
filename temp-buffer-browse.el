@@ -104,8 +104,11 @@ the temp buffer window, respectively."
       ;; In case buffer contents are inserted asynchronously such as
       ;; in `slime-inspector-mode'.
       (add-hook 'after-change-functions
-                (lambda (&rest _)
-                  (fit-window-to-buffer nil (floor (frame-height) 2)))
+                (let ((time (float-time)))
+                  (lambda (&rest _)
+                    (when (> (float-time) (+ 0.05 time))
+                      (fit-window-to-buffer nil (floor (frame-height) 2))
+                      (setq time (float-time)))))
                 nil 'local))
     (let ((o (make-overlay (point-min) (point-max))))
       (overlay-put o 'evaporate t)
@@ -125,7 +128,7 @@ the temp buffer window, respectively."
                     (not (member (this-command-keys) '("\C-m" [return])))
                     (eq this-command (lookup-key temp-buffer-browse-map
                                                  (this-command-keys))))
-               (overlay-put o 'line-prefix nil))))))))
+               (ignore (overlay-put o 'line-prefix nil)))))))))
 
 ;;;###autoload
 (define-minor-mode temp-buffer-browse-mode nil
