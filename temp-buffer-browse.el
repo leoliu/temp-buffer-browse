@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013  Free Software Foundation, Inc.
 
 ;; Author: Leo Liu <sdl.web@gmail.com>
-;; Version: 1.0
+;; Version: 1.1
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 ;;; Code:
 
 (eval-and-compile
-  (or (fboundp 'set-temporary-overlay-map) ; new in 24.4.
+  (or (fboundp 'set-temporary-overlay-map) ; new in 24.3
       (defun set-temporary-overlay-map (map &optional keep-pred)
         "Set MAP as a temporary keymap taking precedence over most other keymaps.
 Note that this does NOT take precedence over the \"overriding\" maps
@@ -60,7 +60,18 @@ non-nil then MAP stays active."
           (add-hook 'pre-command-hook clearfunsym)
           (push alist emulation-mode-map-alists)))))
 
+(defcustom temp-buffer-browse-fringe-bitmap 'centered-vertical-bar
+  "Fringe bitmap to use in the temp buffer window."
+  :type '(restricted-sexp :match-alternatives
+                          ((lambda (s)
+                             (and (symbolp s) (fringe-bitmap-p s)))))
+  :group 'help)
+
 (defvar temp-buffer-browse--window nil)
+
+;; See http://debbugs.gnu.org/15497
+(unless (fringe-bitmap-p 'centered-vertical-bar)
+  (define-fringe-bitmap 'centered-vertical-bar [24] nil nil '(top t)))
 
 (defvar temp-buffer-browse-map
   (let ((map (make-sparse-keymap))
@@ -117,7 +128,7 @@ the temp buffer window, respectively."
                    (propertize
                     "|" 'display
                     (unless (zerop (or (frame-parameter nil 'left-fringe) 0))
-                      '(left-fringe centered-vertical-bar warning))
+                      `(left-fringe ,temp-buffer-browse-fringe-bitmap warning))
                     'face 'warning))
       (set-temporary-overlay-map
        temp-buffer-browse-map
