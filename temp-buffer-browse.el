@@ -130,6 +130,7 @@ the temp buffer window, respectively."
                     (unless (zerop (or (frame-parameter nil 'left-fringe) 0))
                       `(left-fringe ,temp-buffer-browse-fringe-bitmap warning))
                     'face 'warning))
+      (overlay-put o 'wrap-prefix (overlay-get o 'line-prefix))
       (set-temporary-overlay-map
        temp-buffer-browse-map
        (lambda ()
@@ -139,7 +140,8 @@ the temp buffer window, respectively."
                     (not (member (this-command-keys) '("\C-m" [return])))
                     (eq this-command (lookup-key temp-buffer-browse-map
                                                  (this-command-keys))))
-               (ignore (overlay-put o 'line-prefix nil)))))))))
+               (ignore (overlay-put o 'line-prefix nil)
+                       (overlay-put o 'wrap-prefix nil)))))))))
 
 ;;;###autoload
 (define-minor-mode temp-buffer-browse-mode nil
