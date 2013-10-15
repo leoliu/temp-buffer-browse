@@ -99,10 +99,11 @@ non-nil then MAP stays active."
     (define-key map [backspace] down)
     map))
 
-(defun temp-buffer-browse-setup ()
-  "Browse temp buffers easily.
-Set up `SPC', `DEL' and `RET' to scroll up, scroll down and close
-the temp buffer window, respectively."
+;;;###autoload
+(defun temp-buffer-browse-activate ()
+  "Activate temporary key bindings for current window.
+Specifically set up keys `SPC', `DEL' and `RET' to scroll up,
+scroll down and close the temp buffer window, respectively."
   (unless (derived-mode-p 'completion-list-mode)
     (setq temp-buffer-browse--window (selected-window))
     ;; When re-using existing window don't call
@@ -148,8 +149,8 @@ the temp buffer window, respectively."
   :lighter ""
   :global t
   (if temp-buffer-browse-mode
-      (add-hook 'temp-buffer-show-hook 'temp-buffer-browse-setup t)
-    (remove-hook 'temp-buffer-show-hook 'temp-buffer-browse-setup)))
+      (add-hook 'temp-buffer-show-hook 'temp-buffer-browse-activate t)
+    (remove-hook 'temp-buffer-show-hook 'temp-buffer-browse-activate)))
 
 (provide 'temp-buffer-browse)
 ;;; temp-buffer-browse.el ends here
