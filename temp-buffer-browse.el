@@ -131,7 +131,11 @@ scroll down and close the temp buffer window, respectively."
                     (unless (zerop (or (frame-parameter nil 'left-fringe) 0))
                       `(left-fringe ,temp-buffer-browse-fringe-bitmap warning))
                     'face 'warning))
-      (overlay-put o 'wrap-prefix (overlay-get o 'line-prefix))
+      ;; NOTE: breaks `adaptive-wrap-prefix-mode' because overlay's
+      ;; wrap-prefix overrides text property's. Overlay's cannot have
+      ;; negative priority.
+      (unless (bound-and-true-p adaptive-wrap-prefix-mode)
+        (overlay-put o 'wrap-prefix (overlay-get o 'line-prefix)))
       (set-temporary-overlay-map
        temp-buffer-browse-map
        (lambda ()
