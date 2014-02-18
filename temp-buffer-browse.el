@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013-2014  Free Software Foundation, Inc.
 
 ;; Author: Leo Liu <sdl.web@gmail.com>
-;; Version: 1.1
+;; Version: 1.2
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -146,9 +146,16 @@ scroll down and close the temp buffer window, respectively."
 (define-minor-mode temp-buffer-browse-mode nil
   :lighter ""
   :global t
-  (if temp-buffer-browse-mode
-      (add-hook 'temp-buffer-show-hook 'temp-buffer-browse-activate t)
-    (remove-hook 'temp-buffer-show-hook 'temp-buffer-browse-activate)))
+  ;; Work around http://debbugs.gnu.org/16038
+  (let ((activate (lambda ()
+                    (unless (derived-mode-p 'fundamental-mode)
+                      (temp-buffer-browse-activate)))))
+    (if temp-buffer-browse-mode
+        (progn
+          (add-hook 'temp-buffer-show-hook 'temp-buffer-browse-activate t)
+          (add-hook 'temp-buffer-window-show-hook activate t))
+      (remove-hook 'temp-buffer-show-hook 'temp-buffer-browse-activate)
+      (remove-hook 'temp-buffer-window-show-hook activate))))
 
 (provide 'temp-buffer-browse)
 ;;; temp-buffer-browse.el ends here
